@@ -1,4 +1,4 @@
-<h2>All Dummy <a [routerLink]="['/dummies/create']" routerLinkActive="link-active" class="btn btn-primary pull-right">Create</a></h2>
+<h2>All Dummy <a [routerLink]="['/'+dummyService.module+'/create']" routerLinkActive="link-active" class="btn btn-primary pull-right">Create</a></h2>
 
 <table class="table table-hover">
   <thead>
@@ -16,7 +16,7 @@
           <td>{{ dummy.column_1 }}</td>
           <td>{{ dummy.column_3 }}</td>
           <td colspan="2" class="pull-right">
-            <a [routerLink]="['/dummies/edit', dummy.unique_column]" routerLinkActive="link-active" class="btn btn-primary mr-2">Edit</a>
+            <a [routerLink]="['/'+dummyService.module+'/edit', dummy.unique_column]" routerLinkActive="link-active" class="btn btn-primary mr-2">Edit</a>
             <button (click)="destroy(dummy.unique_column)" class="btn btn-danger">Delete</button>
           </td>
       </tr>
@@ -25,14 +25,14 @@
 <nav aria-label="Page navigation example" *ngIf="paginate">
   <ul class="pagination justify-content-end">
     <li class="page-item" [ngClass]="{'disabled':paginate.current_page<=1}">
-      <a class="page-link" [routerLink]="['/dummies/all', 1]" tabindex="-1"><<</a>
+      <a class="page-link" [routerLink]="['/'+dummyService.module+'/all', 1]" tabindex="-1"><<</a>
     </li>
 
-    <li *ngFor="let page of paginate.pages" class="page-item" [ngClass]="{'disabled':paginate.current_page==page}"><a class="page-link" [routerLink]="['/dummies/all', page]">{{page}}</a></li>
+    <li *ngFor="let page of paginate.pages" class="page-item" [ngClass]="{'disabled':paginate.current_page==page}"><a class="page-link" [routerLink]="['/'+dummyService.module+'/all', page]">{{page}}</a></li>
     
 
     <li class="page-item" [ngClass]="{'disabled':paginate.next_page_url==null}">
-      <a class="page-link" [routerLink]="['/dummies/all', paginate.last_page]">>></a>
+      <a class="page-link" [routerLink]="['/'+dummyService.module+'/all', paginate.last_page]">>></a>
     </li>
   </ul>
 </nav>

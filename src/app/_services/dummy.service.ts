@@ -8,7 +8,7 @@ import { environment } from '../../environments/environment';
 export class DummyService {
 	public readonly apiUrl = environment.adminApiUrl;
     public readonly baseUrl = environment.baseUrl;
-    public module:string = 'dummy';
+    public module:string = 'dummies';
 
     constructor(public http: HttpClient) {
         
