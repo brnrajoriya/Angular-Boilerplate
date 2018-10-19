@@ -1,0 +1,10 @@
+<div [ngStyle]="{'margin-left':isOpenNav?'250px':'0px'}" id="main">
+  <span class="hamburger" (click)="isOpenNav = !isOpenNav" *ngIf="!isOpenNav">&#9776;</span>
+  <span class="closeHamburger" (click)="isOpenNav = !isOpenNav" *ngIf="isOpenNav">&times;</span>
+
+  <div id="mySidenav" class="sidenav" [style.width]="isOpenNav?'250px':'0px'">
+      <a (click)="isOpenNav = !isOpenNav" [routerLink]="['/']">Home</a>
+      <a (click)="isOpenNav = !isOpenNav" [routerLink]="['/dummies']">Dummy</a>
+      <a (click)="logout();">Logout</a>
+  </div>
+</div>

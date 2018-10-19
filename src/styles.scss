@@ -1,0 +1,85 @@
+@import "~bootstrap/dist/css/bootstrap.css";
+@import "~font-awesome/css/font-awesome.css";
+@import '~@angular/material/_theming';
+
+@include mat-core();
+$primary: mat-palette($mat-grey, 900);
+$accent: mat-palette($mat-indigo);
+$warn: mat-palette($mat-red);
+$theme: mat-light-theme($primary, $accent, $warn);
+@include angular-material-theme($theme);
+
+@font-face {
+  font-family: myFirstFont;
+  src: url(./assets/font/avenir_light.otf);
+}
+
+* {
+  font-family: myFirstFont;
+}
+
+html, body {
+  margin: 0;
+  padding:0;
+  line-height: normal;
+  font-family: Roboto, 'Helvetica Neue', Arial, sans-serif;
+
+  -webkit-tap-highlight-color: transparent;
+  -webkit-touch-callout: none;
+  -webkit-text-size-adjust: 100%;
+  -ms-text-size-adjust: 100%;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background-color: #eee;
+}
+
+div {
+  box-sizing: border-box;
+}
+
+mat-sidenav-container {
+  height: 100%;
+}
+
+h3 {
+  font-size: 20px;
+  font-weight: 500;
+  letter-spacing: 0.005em;
+}
+
+pre {
+  margin: 0;
+}
+
+code {
+  white-space: pre;
+}
+
+h3, h4, h5, p {
+  margin: 0 0 16px;
+}
+
+h4 {
+  font-weight: 500;
+  color: #777777;
+  font-size: 18px;
+}
+
+p {
+  line-height: 1.5;
+}
+
+
+.inline {
+  display: inline-block;
+  padding: 0 0.5em;
+  white-space: normal;
+  vertical-align: text-bottom;
+}
+
+[mat-prefix] > mat-icon, [mat-suffix] > mat-icon {
+  font-size: 18px;
+  vertical-align: middle;
+  height: 16px;
+  width: 22px;
+}

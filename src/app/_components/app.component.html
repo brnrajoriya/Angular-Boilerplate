@@ -1,0 +1,20 @@
+<app-navigation *ngIf="authService.isLoggedIn()"></app-navigation>
+
+<!-- Custom It According to your Requirements -->
+<nav *ngIf="!authService.isLoggedIn()" class="navbar navbar-light bg-light justify-content-between">
+  <a href="https://www.linkedin.com/in/brnrajoriya/" class="navbar-brand">Bhaskar Rajoriya</a>
+  <ul class="navbar-nav mr-auto mt-2 mt-lg-0">
+	<li class="nav-item active">
+		<a class="nav-link" [routerLink]="['/login']">Login <span class="sr-only">(current)</span></a>
+	</li>
+  </ul>
+  <form class="form-inline">
+    <input class="form-control mr-sm-2" type="search" placeholder="Bhaskar Rajoriya" aria-label="Search">
+    <button class="btn btn-outline-success my-2 my-sm-0" type="submit" (click)="search()">Search</button>
+  </form>
+</nav>
+
+
+<div class="container-fluid pl-4 pt-4 pr-4">
+    <router-outlet></router-outlet>
+</div>
