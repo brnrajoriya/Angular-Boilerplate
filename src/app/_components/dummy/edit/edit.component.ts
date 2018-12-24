@@ -19,7 +19,7 @@ export class EditDummyComponent implements OnInit {
 	}
 
 	edit(unique_column) {
-		this.dummy={};
+		this.dummy={unique_column:1, column_1:'Value 1', column_2:'Value 2', column_3:'Value 3'};
     }
 
     update(unique_column, dummy) {

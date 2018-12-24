@@ -20,7 +20,7 @@ Angular Ready To Go Boilerplate by Brn.Rajoriya
 
 * Node - v8.11.3
 * NPM - v6.4.0
-* Angular CLI - v6.0.8
+* Angular CLI - v7.1.4
 
 # Note - The System User Should have permission to change in Prerequisites Folders 
 

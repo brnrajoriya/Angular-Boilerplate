@@ -7,7 +7,7 @@ import { Component, OnInit } from '@angular/core';
 })
 export class HomeComponent implements OnInit {
   
-  public title: string = 'Angular 6';
+  public title: string = 'Angular 7';
 
   constructor() { }
 
