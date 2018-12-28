@@ -1,3 +1,5 @@
+import { NgtUniversalModule } from '@ng-toolkit/universal';
+import { CommonModule } from '@angular/common';
 // all angular imports
 import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
@@ -5,7 +7,6 @@ import { BrowserAnimationsModule, NoopAnimationsModule } from '@angular/platform
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
 import { LayoutModule } from '@angular/cdk/layout';
-import 'hammerjs';
 
 // all app modules
 import { MaterialModule, CrudModule } from './_modules/index';
@@ -37,8 +38,11 @@ import { HomeComponent } from './_components/home/home.component';
     NavigationComponent,
     HomeComponent
   ],
-  imports: [
-    BrowserModule,
+  imports:[
+ CommonModule,
+NgtUniversalModule,
+ 
+    
     FormsModule,
     ReactiveFormsModule,
     routing,
@@ -57,6 +61,5 @@ import { HomeComponent } from './_components/home/home.component';
     DummyService,
     FileService
   ],
-  bootstrap: [AppComponent]
 })
 export class AppModule { }

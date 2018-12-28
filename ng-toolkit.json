@@ -1,0 +1,7 @@
+{
+  "universal": {
+    "project": "client",
+    "skipInstall": false,
+    "directory": "."
+  }
+}

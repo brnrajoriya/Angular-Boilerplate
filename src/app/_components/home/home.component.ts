@@ -1,4 +1,5 @@
-import { Component, OnInit } from '@angular/core';
+import { WINDOW } from '@ng-toolkit/universal';
+import { Component, OnInit , Inject} from '@angular/core';
 
 @Component({
   selector: 'app-home',
@@ -9,13 +10,13 @@ export class HomeComponent implements OnInit {
   
   public title: string = 'Angular 7';
 
-  constructor() { }
+  constructor(@Inject(WINDOW) private window: Window, ) { }
 
   ngOnInit() {
   }
 
   openOptions() {
-  	window.document.getElementById('dashboard-button').click();
+  	this.window.document.getElementById('dashboard-button').click();
   }
 
 }

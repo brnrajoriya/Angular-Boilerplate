@@ -1,4 +1,5 @@
-import { Component } from '@angular/core';
+import { WINDOW } from '@ng-toolkit/universal';
+import { Component , Inject} from '@angular/core';
 import { AuthenticationService } from '../_services/authentication.service';
 
 @Component({
@@ -8,10 +9,10 @@ import { AuthenticationService } from '../_services/authentication.service';
 })
 export class AppComponent {
 
-  constructor(public authService: AuthenticationService) { }
+  constructor(@Inject(WINDOW) private window: Window, public authService: AuthenticationService) { }
 
   search() {
-  	window.location.href = "https://www.google.co.in/search?q=Bhaskar+Rajoriya";
+  	this.window.location.href = "https://www.google.co.in/search?q=Bhaskar+Rajoriya";
   }
 
 }

@@ -1,4 +1,5 @@
-import { Injectable } from '@angular/core';
+import { LOCAL_STORAGE } from '@ng-toolkit/universal';
+import { Injectable, Inject } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
@@ -11,14 +12,14 @@ export class AuthenticationService {
     public readonly apiUrl = environment.apiUrl;
     public readonly baseUrl = environment.baseUrl;
 
-    constructor(public http: HttpClient) {
+    constructor(@Inject(LOCAL_STORAGE) private localStorage: any, public http: HttpClient) {
         // set token if saved in local storage
         var currentUser = JSON.parse(localStorage.getItem('user'));
         this.token = currentUser && currentUser.token;
     }
 
     isLoggedIn() {
-        if (localStorage.getItem('user')) {
+        if (this.localStorage.getItem('user')) {
            return true;
        }       
        return false;
@@ -33,7 +34,7 @@ export class AuthenticationService {
                     let expiresIn = response['expires_in'];
                     if (this.token) {
                         // store expiresIn and jwt token in local storage to keep user logged in between page refreshes
-                        localStorage.setItem('user', 
+                        this.localStorage.setItem('user', 
                             JSON.stringify({ expires_in: expiresIn, token: this.token }));
                     }
                     return response;
@@ -50,7 +51,7 @@ export class AuthenticationService {
                     let expiresIn = response['expires_in'];
                     if (this.token) {
                         // store expiresIn and jwt token in local storage to keep user logged in between page refreshes
-                        localStorage.setItem('user', 
+                        this.localStorage.setItem('user', 
                             JSON.stringify({ expires_in: expiresIn, token: this.token }));
                     }
                     return response;
@@ -61,7 +62,7 @@ export class AuthenticationService {
     logout(): void {
         // clear token remove user from local storage to log user out
         this.token = null;
-        localStorage.removeItem('user');
+        this.localStorage.removeItem('user');
     }
 
     sendPasswordResetEmail(email: string): Observable<any>  {
