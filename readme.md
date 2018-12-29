@@ -25,7 +25,7 @@ Angular Ready To Go Boilerplate by Brn.Rajoriya
 # Note - The System User Should have permission to change in Prerequisites Folders 
 
 ## Installation
-
+* git clone https://github.com/brnrajoriya/Angular-Ready-To-Use-Boilerplate.git [folder_name:optional] Or git clone https://github.com/brnrajoriya/Angular-Ready-To-Use-Boilerplate.git -b universal [folder_name:optional]
 * npm install  // It will install all the dependencies 
 * ng serve -o  // It will open browser with localhost:4200
 * ng build     // It will create build with local mode - Set from `\src\environments\environment.ts`

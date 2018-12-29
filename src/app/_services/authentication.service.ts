@@ -14,8 +14,10 @@ export class AuthenticationService {
 
     constructor(@Inject(LOCAL_STORAGE) private localStorage: any, public http: HttpClient) {
         // set token if saved in local storage
-        var currentUser = JSON.parse(localStorage.getItem('user'));
-        this.token = currentUser && currentUser.token;
+        if(localStorage.getItem('user')) {
+            var currentUser = JSON.parse(localStorage.getItem('user'));
+            this.token = currentUser && currentUser.token;
+        }
     }
 
     isLoggedIn() {
