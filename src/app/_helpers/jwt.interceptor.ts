@@ -11,7 +11,7 @@ export class JwtInterceptor implements HttpInterceptor {
     intercept(request: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
         //append headers
         this.headers = new HttpHeaders();
-        this.headers.set("Content-Type", 'application/jsonwa');
+        this.headers.set("Content-Type", 'application/json');
         this.headers.set("Access-Control-Allow-Origin", "*");
         this.headers.set("Access-Control-Allow-Headers", "Origin, Authorization, Content-Type, Accept");
 
