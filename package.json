@@ -39,6 +39,7 @@
     "codelyzer": "^4.0.1",
     "ts-node": "~6.1.1",
     "tslint": "~5.10.0",
-    "typescript": "~3.1.6"
+    "typescript": "~3.1.6",
+    "node-sass": "~4.14.1"
   }
 }
