@@ -1,0 +1,48 @@
+# Publishes the demo build (mock API) to GitHub Pages on every push to master.
+# One-time setup: repo Settings -> Pages -> Source: "GitHub Actions".
+name: Deploy demo to GitHub Pages
+
+on:
+  push:
+    branches: [master]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - run: npm ci
+      - run: npm run test:ci
+      - name: Build (production + demo environment)
+        run: npm run build:demo -- --base-href "/${{ github.event.repository.name }}/"
+      - name: SPA fallback for deep links
+        run: |
+          cp dist/angular-boilerplate/browser/index.html dist/angular-boilerplate/browser/404.html
+          touch dist/angular-boilerplate/browser/.nojekyll
+      - uses: actions/upload-pages-artifact@v4
+        with:
+          path: dist/angular-boilerplate/browser
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

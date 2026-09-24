@@ -1,0 +1,75 @@
+<header class="page-header">
+  <h1>File upload</h1>
+</header>
+
+<mat-card appearance="outlined">
+  <mat-card-content class="stack">
+    <label
+      class="dropzone"
+      [class.dragging]="dragging()"
+      (dragover)="onDragOver($event)"
+      (dragleave)="dragging.set(false)"
+      (drop)="onDrop($event)"
+    >
+      <mat-icon>cloud_upload</mat-icon>
+      <span><strong>Click to choose</strong> or drag an image / video here</span>
+      <small>Max 10 MB. Sent as multipart/form-data with upload progress.</small>
+      <input type="file" class="visually-hidden" [accept]="accept" (change)="onPick($event)" />
+    </label>
+
+    @if (error(); as message) {
+      <p class="form-error" role="alert">{{ message }}</p>
+    }
+
+    @if (selected(); as s) {
+      <div class="preview">
+        @if (s.kind === 'image') {
+          <img [src]="s.previewUrl" [alt]="'Preview of ' + s.file.name" />
+        } @else {
+          <video [src]="s.previewUrl" controls muted></video>
+        }
+        <div class="preview-meta">
+          <strong>{{ s.file.name }}</strong>
+          <small>{{ s.file.size / 1024 | number: '1.0-1' }} KB &middot; {{ s.file.type }}</small>
+
+          @if (progress() !== null) {
+            <mat-progress-bar
+              mode="determinate"
+              [value]="progress()"
+              aria-label="Upload progress"
+            />
+            <small>{{ progress() }}%</small>
+          }
+
+          <div class="d-flex gap-2">
+            <button
+              mat-flat-button
+              type="button"
+              (click)="upload()"
+              [disabled]="progress() !== null"
+            >
+              <mat-icon>upload</mat-icon>
+              Upload
+            </button>
+            <button mat-button type="button" (click)="cancel()">Cancel</button>
+          </div>
+        </div>
+      </div>
+    }
+  </mat-card-content>
+</mat-card>
+
+@if (uploaded().length) {
+  <h2 class="mt-4">Uploaded this session</h2>
+  <mat-list>
+    @for (file of uploaded(); track file.id) {
+      <mat-list-item>
+        <mat-icon matListItemIcon>{{
+          file.type.startsWith('video/') ? 'movie' : 'image'
+        }}</mat-icon>
+        <span matListItemTitle>{{ file.name }}</span>
+        <span matListItemLine>{{ file.size / 1024 | number: '1.0-1' }} KB</span>
+      </mat-list-item>
+    }
+  </mat-list>
+}

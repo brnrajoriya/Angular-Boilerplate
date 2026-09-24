@@ -1,0 +1,52 @@
+.dropzone {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 32px 16px;
+  text-align: center;
+  cursor: pointer;
+  border: 2px dashed var(--mat-sys-outline-variant);
+  border-radius: var(--mat-sys-corner-medium);
+  color: var(--mat-sys-on-surface-variant);
+  transition:
+    border-color 150ms,
+    background-color 150ms;
+
+  mat-icon {
+    font-size: 40px;
+    width: 40px;
+    height: 40px;
+    color: var(--mat-sys-primary);
+  }
+
+  &:hover,
+  &:focus-within,
+  &.dragging {
+    border-color: var(--mat-sys-primary);
+    background: var(--mat-sys-surface-container-low);
+  }
+}
+
+.preview {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  align-items: flex-start;
+
+  img,
+  video {
+    max-width: 240px;
+    max-height: 180px;
+    border-radius: var(--mat-sys-corner-small);
+    object-fit: cover;
+  }
+}
+
+.preview-meta {
+  display: flex;
+  flex: 1;
+  min-width: 200px;
+  flex-direction: column;
+  gap: 8px;
+}

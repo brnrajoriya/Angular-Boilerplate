@@ -1,0 +1,45 @@
+<header class="page-header">
+  <h1>Dummy details</h1>
+  <a mat-button routerLink="/dummies">
+    <mat-icon>arrow_back</mat-icon>
+    Back to list
+  </a>
+</header>
+
+@if (dummy.isLoading()) {
+  <mat-progress-bar mode="indeterminate" aria-label="Loading record" />
+} @else if (loadError(); as message) {
+  <mat-card appearance="outlined">
+    <mat-card-content class="form-error" role="alert">{{ message }}</mat-card-content>
+    <mat-card-actions>
+      <button mat-button type="button" (click)="dummy.reload()">Retry</button>
+    </mat-card-actions>
+  </mat-card>
+} @else if (dummy.value(); as d) {
+  <mat-card appearance="outlined">
+    <mat-card-content>
+      <dl class="details">
+        <dt>ID</dt>
+        <dd>{{ d.id }}</dd>
+        <dt>Title</dt>
+        <dd>{{ d.title }}</dd>
+        <dt>Category</dt>
+        <dd>{{ d.category | titlecase }}</dd>
+        <dt>Description</dt>
+        <dd class="pre-line">{{ d.description || '-' }}</dd>
+        <dt>Created</dt>
+        <dd>{{ d.created_at | date: 'full' }}</dd>
+      </dl>
+    </mat-card-content>
+    <mat-card-actions align="end">
+      <button mat-button type="button" class="danger" (click)="remove(d)">
+        <mat-icon>delete</mat-icon>
+        Delete
+      </button>
+      <a mat-flat-button [routerLink]="['/dummies', d.id, 'edit']">
+        <mat-icon>edit</mat-icon>
+        Edit
+      </a>
+    </mat-card-actions>
+  </mat-card>
+}

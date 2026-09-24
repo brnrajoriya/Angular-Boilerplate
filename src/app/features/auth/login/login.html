@@ -1,0 +1,62 @@
+<mat-card class="auth-card" appearance="outlined">
+  <mat-card-header>
+    <mat-card-title>Login</mat-card-title>
+    <mat-card-subtitle>Welcome back! Please sign in.</mat-card-subtitle>
+  </mat-card-header>
+
+  <mat-card-content>
+    @if (demoUser) {
+      <div class="info-box">
+        <mat-icon>info</mat-icon>
+        <span>
+          Mock API is on. Demo account: <strong>{{ demoUser.email }}</strong> /
+          <strong>{{ demoUser.password }}</strong>
+        </span>
+        <button mat-button type="button" (click)="fillDemo()">Use it</button>
+      </div>
+    }
+
+    <form [formRoot]="form" class="stack">
+      <mat-form-field>
+        <mat-label>Email</mat-label>
+        <mat-icon matPrefix>mail</mat-icon>
+        <input matInput type="email" autocomplete="email" [formField]="form.email" />
+        <mat-error><app-field-error [field]="form.email" /></mat-error>
+      </mat-form-field>
+
+      <mat-form-field>
+        <mat-label>Password</mat-label>
+        <mat-icon matPrefix>lock</mat-icon>
+        <input
+          matInput
+          [type]="hidePassword() ? 'password' : 'text'"
+          autocomplete="current-password"
+          [formField]="form.password"
+        />
+        <button
+          mat-icon-button
+          matSuffix
+          type="button"
+          (click)="hidePassword.set(!hidePassword())"
+          [attr.aria-label]="hidePassword() ? 'Show password' : 'Hide password'"
+        >
+          <mat-icon>{{ hidePassword() ? 'visibility' : 'visibility_off' }}</mat-icon>
+        </button>
+        <mat-error><app-field-error [field]="form.password" /></mat-error>
+      </mat-form-field>
+
+      @if (error(); as message) {
+        <p class="form-error" role="alert">{{ message }}</p>
+      }
+
+      <button mat-flat-button type="submit" [disabled]="form().submitting()">
+        {{ form().submitting() ? 'Signing in...' : 'Login' }}
+      </button>
+
+      <div class="auth-links">
+        <a routerLink="/forgot-password">Forgot password?</a>
+        <span>No account? <a routerLink="/register">Register</a></span>
+      </div>
+    </form>
+  </mat-card-content>
+</mat-card>
