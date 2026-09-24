@@ -1,7 +1,10 @@
-export const environment = {
-  production: false,
-  baseUrl: window.location.origin, // Base URL here
-  apiUrl: 'http://local.brn.rajoriya/api', // global API URL (for production build)
-  adminApiUrl: 'http://local.brn.rajoriya/api/admin'
-  //... more of your variables
+import { Environment } from './environment.model';
+
+// Production environment (default for `ng build`).
+export const environment: Environment = {
+  name: 'production',
+  production: true,
+  apiUrl: 'https://api.example.com/api',
+  adminApiUrl: 'https://api.example.com/api/admin',
+  useMockApi: false,
 };

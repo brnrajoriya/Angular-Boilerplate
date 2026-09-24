@@ -1,0 +1,55 @@
+<header class="page-header">
+  <h1>{{ isEdit() ? 'Edit dummy' : 'Create dummy' }}</h1>
+  <a mat-button [routerLink]="isEdit() ? ['/dummies', id()] : ['/dummies']">
+    <mat-icon>arrow_back</mat-icon>
+    Cancel
+  </a>
+</header>
+
+@if (existing.isLoading()) {
+  <mat-progress-bar mode="indeterminate" aria-label="Loading record" />
+} @else if (loadError(); as message) {
+  <p class="form-error" role="alert">{{ message }}</p>
+  <button mat-button type="button" (click)="existing.reload()">Retry</button>
+} @else {
+  <mat-card appearance="outlined">
+    <mat-card-content>
+      <form [formRoot]="form" class="row g-3">
+        <mat-form-field class="col-md-8">
+          <mat-label>Title</mat-label>
+          <input matInput [formField]="form.title" />
+          <mat-hint align="end">{{ model().title.length }} / 100</mat-hint>
+          <mat-error><app-field-error [field]="form.title" /></mat-error>
+        </mat-form-field>
+
+        <mat-form-field class="col-md-4">
+          <mat-label>Category</mat-label>
+          <mat-select [formField]="form.category">
+            @for (category of categories; track category) {
+              <mat-option [value]="category">{{ category | titlecase }}</mat-option>
+            }
+          </mat-select>
+          <mat-error><app-field-error [field]="form.category" /></mat-error>
+        </mat-form-field>
+
+        <mat-form-field class="col-12">
+          <mat-label>Description</mat-label>
+          <textarea matInput rows="5" [formField]="form.description"></textarea>
+          <mat-hint align="end">{{ model().description.length }} / 1000</mat-hint>
+          <mat-error><app-field-error [field]="form.description" /></mat-error>
+        </mat-form-field>
+
+        @if (error(); as message) {
+          <p class="form-error col-12" role="alert">{{ message }}</p>
+        }
+
+        <div class="col-12 d-flex justify-content-end gap-2">
+          <button mat-flat-button type="submit" [disabled]="form().submitting()">
+            <mat-icon>save</mat-icon>
+            {{ form().submitting() ? 'Saving...' : isEdit() ? 'Update' : 'Create' }}
+          </button>
+        </div>
+      </form>
+    </mat-card-content>
+  </mat-card>
+}

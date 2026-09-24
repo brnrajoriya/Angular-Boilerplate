@@ -1,0 +1,47 @@
+.search {
+  width: 100%;
+  max-width: 360px;
+  margin-bottom: 16px;
+}
+
+.table-card {
+  position: relative;
+  border: 1px solid var(--mat-sys-outline-variant);
+  border-radius: var(--mat-sys-corner-medium);
+  overflow: hidden;
+
+  mat-progress-bar {
+    position: absolute;
+    top: 0;
+    z-index: 1;
+  }
+}
+
+.table-scroll {
+  overflow-x: auto;
+}
+
+table {
+  width: 100%;
+  min-width: 640px;
+}
+
+.actions {
+  text-align: right;
+  white-space: nowrap;
+}
+
+.no-data {
+  padding: 24px 16px;
+  text-align: center;
+  color: var(--mat-sys-on-surface-variant);
+}
+
+.state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 32px 16px;
+  color: var(--mat-sys-error);
+}

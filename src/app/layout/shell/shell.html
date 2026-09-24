@@ -1,0 +1,70 @@
+<a class="skip-link" href="#main-content">Skip to content</a>
+
+<mat-toolbar class="toolbar">
+  <button mat-icon-button type="button" (click)="sidenav.toggle()" aria-label="Toggle navigation">
+    <mat-icon>menu</mat-icon>
+  </button>
+  <a routerLink="/" class="brand">{{ appName }}</a>
+  <span class="spacer"></span>
+  <app-theme-toggle />
+
+  @if (auth.user(); as user) {
+    <button mat-icon-button type="button" [matMenuTriggerFor]="userMenu" aria-label="Account menu">
+      <mat-icon>account_circle</mat-icon>
+    </button>
+    <mat-menu #userMenu="matMenu">
+      <div class="menu-header">
+        <strong>{{ user.name }}</strong>
+        <small>{{ user.email }}</small>
+      </div>
+      <button mat-menu-item type="button" (click)="auth.logout()">
+        <mat-icon>logout</mat-icon>
+        <span>Logout</span>
+      </button>
+    </mat-menu>
+  } @else {
+    <a mat-button routerLink="/login">Login</a>
+  }
+</mat-toolbar>
+
+@if (loading.isLoading()) {
+  <mat-progress-bar class="loading-bar" mode="indeterminate" aria-label="Loading" />
+}
+
+<mat-sidenav-container class="layout">
+  <mat-sidenav
+    #sidenav
+    [mode]="isHandset() ? 'over' : 'side'"
+    [opened]="!isHandset()"
+    class="sidenav"
+  >
+    <mat-nav-list aria-label="Main navigation">
+      @for (item of navItems(); track item.path) {
+        <a
+          mat-list-item
+          [routerLink]="item.path"
+          routerLinkActive
+          #rla="routerLinkActive"
+          [activated]="rla.isActive"
+          [routerLinkActiveOptions]="{ exact: !!item.exact }"
+          (click)="closeOnHandset(sidenav)"
+        >
+          <mat-icon matListItemIcon>{{ item.icon }}</mat-icon>
+          <span matListItemTitle>{{ item.label }}</span>
+        </a>
+      }
+    </mat-nav-list>
+  </mat-sidenav>
+
+  <mat-sidenav-content>
+    <main id="main-content" class="content" tabindex="-1">
+      <router-outlet />
+    </main>
+    <footer class="footer">
+      <span>&copy; {{ year }} {{ appName }} &middot; env: {{ envName }}</span>
+      <a href="https://www.linkedin.com/in/brnrajoriya/" target="_blank" rel="noopener noreferrer">
+        by Bhaskar Rajoriya
+      </a>
+    </footer>
+  </mat-sidenav-content>
+</mat-sidenav-container>
