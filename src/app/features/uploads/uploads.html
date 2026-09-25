@@ -65,9 +65,9 @@
     @for (file of uploaded(); track file.id) {
       <mat-list-item>
         <mat-icon matListItemIcon>{{
-          file.type.startsWith('video/') ? 'movie' : 'image'
+          file.mime_type.startsWith('video/') ? 'movie' : 'image'
         }}</mat-icon>
-        <span matListItemTitle>{{ file.name }}</span>
+        <span matListItemTitle>{{ file.original_name }}</span>
         <span matListItemLine>{{ file.size / 1024 | number: '1.0-1' }} KB</span>
       </mat-list-item>
     }

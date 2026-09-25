@@ -78,7 +78,7 @@ export default class DummyForm {
     source: () => (this.existing.hasValue() ? this.existing.value() : undefined),
     computation: (dummy) =>
       dummy
-        ? { title: dummy.title, category: dummy.category, description: dummy.description }
+        ? { title: dummy.title, category: dummy.category, description: dummy.description ?? '' }
         : { ...EMPTY },
   });
 

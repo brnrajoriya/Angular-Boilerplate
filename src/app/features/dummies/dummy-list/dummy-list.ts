@@ -78,9 +78,9 @@ export default class DummyList {
 
   private readonly query = computed<ListQuery>(() => ({
     page: this.page(),
-    per_page: this.perPage(),
-    sort_by: this.sortBy(),
-    order_by: this.orderBy(),
+    perPage: this.perPage(),
+    sortBy: this.sortBy(),
+    sortOrder: this.orderBy(),
     keyword: this.keyword(),
   }));
 

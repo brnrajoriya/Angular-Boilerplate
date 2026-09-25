@@ -3,12 +3,12 @@ import { DestroyRef, Injectable, computed, inject, signal } from '@angular/core'
 import { Router } from '@angular/router';
 import { Observable, map, tap } from 'rxjs';
 
-import { environment } from '../../../environments/environment';
+import { API_CONFIG, apiUrl } from '../api/api.config';
+import { silent } from '../http/http-context';
 import { storage } from '../services/storage';
 import {
   AuthResponse,
   LoginRequest,
-  MessageResponse,
   RegisterRequest,
   ResetPasswordRequest,
   Session,
@@ -19,11 +19,14 @@ const SESSION_KEY = 'session';
 /** `setTimeout` overflows above ~24.8 days, so clamp the auto-logout timer. */
 const MAX_TIMEOUT = 2_147_483_647;
 
+/**
+ * Token based session. Endpoint paths come from `API_CONFIG.auth` (core/api/api.config.ts).
+ */
 @Injectable({ providedIn: 'root' })
 export class AuthService {
   private readonly http = inject(HttpClient);
   private readonly router = inject(Router);
-  private readonly authUrl = `${environment.apiUrl}/auth`;
+  private readonly api = inject(API_CONFIG);
 
   private readonly session = signal<Session | null>(restoreSession());
   private expiryTimer: ReturnType<typeof setTimeout> | undefined;
@@ -38,29 +41,39 @@ export class AuthService {
   }
 
   login(credentials: LoginRequest): Observable<User> {
-    return this.http.post<AuthResponse>(`${this.authUrl}/login`, credentials).pipe(
+    return this.http.post<AuthResponse>(this.url('login'), credentials).pipe(
       tap((res) => this.startSession(res)),
       map((res) => res.user),
     );
   }
 
   register(payload: RegisterRequest): Observable<User> {
-    return this.http.post<AuthResponse>(`${this.authUrl}/signup`, payload).pipe(
+    return this.http.post<AuthResponse>(this.url('register'), payload).pipe(
       tap((res) => this.startSession(res)),
       map((res) => res.user),
     );
   }
 
-  sendPasswordResetEmail(email: string): Observable<MessageResponse> {
-    return this.http.post<MessageResponse>(`${this.authUrl}/recovery`, { email });
+  sendPasswordResetEmail(email: string): Observable<unknown> {
+    return this.http.post(this.url('forgotPassword'), { email });
   }
 
-  resetPassword(payload: ResetPasswordRequest): Observable<MessageResponse> {
-    return this.http.post<MessageResponse>(`${this.authUrl}/reset`, payload);
+  resetPassword(payload: ResetPasswordRequest): Observable<unknown> {
+    return this.http.post(this.url('resetPassword'), payload);
   }
 
-  /** Clears the session and (optionally) sends the user to the login page. */
-  logout(options: { redirect?: boolean; returnUrl?: string } = {}): void {
+  /**
+   * Ends the session locally and (by default) revokes the token on the server.
+   * `revoke: false` is used when the server already rejected the token (401).
+   */
+  logout(options: { redirect?: boolean; returnUrl?: string; revoke?: boolean } = {}): void {
+    if ((options.revoke ?? true) && this.token()) {
+      // Fire and forget: the request is built (with the token) before the session is cleared.
+      this.http
+        .post(this.url('logout'), null, { context: silent() })
+        .subscribe({ error: () => undefined });
+    }
+
     clearTimeout(this.expiryTimer);
     this.session.set(null);
     storage.remove(SESSION_KEY);
@@ -69,6 +82,18 @@ export class AuthService {
       const queryParams = options.returnUrl ? { returnUrl: options.returnUrl } : undefined;
       void this.router.navigate(['/login'], { queryParams });
     }
+  }
+
+  /** True for the endpoints that are called while logged out (login, register, password reset). */
+  isPublicAuthUrl(url: string): boolean {
+    const { login, register, forgotPassword, resetPassword, logout } = this.api.auth;
+    return [login, register, forgotPassword, resetPassword, logout].some(
+      (path) => url === apiUrl(this.api, path),
+    );
+  }
+
+  private url(endpoint: keyof typeof this.api.auth): string {
+    return apiUrl(this.api, this.api.auth[endpoint]);
   }
 
   private startSession(res: AuthResponse): void {
@@ -86,7 +111,10 @@ export class AuthService {
     clearTimeout(this.expiryTimer);
     if (!session) return;
     const remaining = Math.min(session.expiresAt - Date.now(), MAX_TIMEOUT);
-    this.expiryTimer = setTimeout(() => this.logout({ returnUrl: this.router.url }), remaining);
+    this.expiryTimer = setTimeout(
+      () => this.logout({ returnUrl: this.router.url, revoke: false }),
+      remaining,
+    );
   }
 }
 

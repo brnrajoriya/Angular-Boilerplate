@@ -1,7 +1,8 @@
-import { Component, inject, input, signal } from '@angular/core';
+import { Component, inject, input, linkedSignal, signal } from '@angular/core';
 import {
   FormField,
   FormRoot,
+  email,
   form,
   minLength,
   required,
@@ -58,11 +59,20 @@ export default class ResetPassword {
   /** Bound from the `reset-password/:token` route param. */
   readonly token = input.required<string>();
 
+  /** Bound from `?email=` - the Laravel API puts it in the reset link it emails. */
+  readonly email = input<string>();
+
   protected readonly error = signal<string | null>(null);
-  protected readonly model = signal({ password: '', confirmPassword: '' });
+  protected readonly model = linkedSignal(() => ({
+    email: this.email() ?? '',
+    password: '',
+    confirmPassword: '',
+  }));
   protected readonly form = form(
     this.model,
     (p) => {
+      required(p.email, { message: 'Email is required.' });
+      email(p.email, { message: 'Enter a valid email address.' });
       required(p.password, { message: 'Password is required.' });
       minLength(p.password, 8, { message: 'Password must be at least 8 characters.' });
       required(p.confirmPassword, { message: 'Please confirm your password.' });
@@ -77,16 +87,17 @@ export default class ResetPassword {
 
   private async reset(): Promise<TreeValidationResult> {
     this.error.set(null);
-    const { password, confirmPassword } = this.model();
+    const { email, password, confirmPassword } = this.model();
     try {
-      const res = await firstValueFrom(
+      await firstValueFrom(
         this.auth.resetPassword({
           token: this.token(),
+          email,
           password,
           password_confirmation: confirmPassword,
         }),
       );
-      this.notify.success(res.message);
+      this.notify.success('Your password has been reset. Please log in.');
       await this.router.navigateByUrl('/login');
       return undefined;
     } catch (e) {

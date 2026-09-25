@@ -12,6 +12,7 @@ import {
 
 import { environment } from '../environments/environment';
 import { routes } from './app.routes';
+import { apiEnvelopeInterceptor } from './core/api/api-envelope.interceptor';
 import { authInterceptor } from './core/auth/auth.interceptor';
 import { errorInterceptor } from './core/http/error.interceptor';
 import { loadingInterceptor } from './core/http/loading.interceptor';
@@ -36,9 +37,14 @@ export const appConfig: ApplicationConfig = {
         loadingInterceptor,
         authInterceptor,
         errorInterceptor,
+        // Unwraps { status, data, errors, ... } (core/api/api-envelope.ts). It sits below the
+        // error interceptor so errors reach it already normalized.
+        apiEnvelopeInterceptor,
         ...(environment.useMockApi ? [lazyMockBackendInterceptor] : []),
       ]),
     ),
     { provide: TitleStrategy, useClass: PageTitleStrategy },
+    // Talking to a backend with other paths or parameter names? Override the contract here:
+    // provideApiConfig({ auth: { ...LARAVEL_API_CONFIG.auth, register: '/auth/signup' } }),
   ],
 };

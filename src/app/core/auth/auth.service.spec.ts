@@ -80,6 +80,11 @@ describe('AuthService', () => {
 
     auth.logout({ returnUrl: '/dummies' });
 
+    // The token is revoked on the server (sent with the token, before the session is cleared).
+    const revoke = http.expectOne(`${environment.apiUrl}/auth/logout`);
+    expect(revoke.request.method).toBe('POST');
+    revoke.flush(null);
+
     expect(auth.isAuthenticated()).toBe(false);
     expect(localStorage.getItem('session')).toBeNull();
     expect(navigate).toHaveBeenCalledWith(['/login'], { queryParams: { returnUrl: '/dummies' } });
