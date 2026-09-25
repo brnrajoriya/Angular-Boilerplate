@@ -4,11 +4,13 @@ export interface User {
   email: string;
 }
 
-/** Response of `POST /auth/login` and `POST /auth/signup`. */
+/** `data` of `POST /auth/login` and `POST /auth/register` (after the envelope is unwrapped). */
 export interface AuthResponse {
   token: string;
+  token_type?: string;
   /** Token lifetime in seconds. */
   expires_in: number;
+  expires_at?: string;
   user: User;
 }
 
@@ -30,12 +32,10 @@ export interface RegisterRequest {
   password: string;
 }
 
+/** The reset link is `FRONTEND_URL/reset-password/{token}?email=...`. */
 export interface ResetPasswordRequest {
   token: string;
+  email: string;
   password: string;
   password_confirmation: string;
-}
-
-export interface MessageResponse {
-  message: string;
 }

@@ -4,7 +4,6 @@ import { Environment } from './environment.model';
 export const environment: Environment = {
   name: 'stage',
   production: true,
-  apiUrl: 'https://stage-api.example.com/api',
-  adminApiUrl: 'https://stage-api.example.com/api/admin',
+  apiUrl: 'https://stage-api.example.com/api/v1',
   useMockApi: false,
 };

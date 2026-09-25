@@ -4,7 +4,8 @@ import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 
 import { environment } from '../../../environments/environment';
-import { authInterceptor, isApiRequest } from './auth.interceptor';
+import { API_CONFIG, isApiUrl } from '../api/api.config';
+import { authInterceptor } from './auth.interceptor';
 import { AuthService } from './auth.service';
 
 describe('authInterceptor', () => {
@@ -28,8 +29,8 @@ describe('authInterceptor', () => {
   afterEach(() => controller.verify());
 
   it('adds the bearer token to API requests', () => {
-    http.get(`${environment.adminApiUrl}/dummies`).subscribe();
-    const req = controller.expectOne(`${environment.adminApiUrl}/dummies`);
+    http.get(`${environment.apiUrl}/dummies`).subscribe();
+    const req = controller.expectOne(`${environment.apiUrl}/dummies`);
     expect(req.request.headers.get('Authorization')).toBe('Bearer abc');
     req.flush({});
   });
@@ -50,7 +51,8 @@ describe('authInterceptor', () => {
   });
 
   it('matches API prefixes on path boundaries only', () => {
-    expect(isApiRequest(`${environment.apiUrl}/auth/login`)).toBe(true);
-    expect(isApiRequest(`${environment.apiUrl}-evil/steal`)).toBe(false);
+    const config = TestBed.inject(API_CONFIG);
+    expect(isApiUrl(config, `${environment.apiUrl}/auth/login`)).toBe(true);
+    expect(isApiUrl(config, `${environment.apiUrl}-evil/steal`)).toBe(false);
   });
 });

@@ -1,10 +1,11 @@
 import { HttpErrorResponse } from '@angular/common/http';
 
-/** Laravel-style validation payload: `{ message, errors: { field: ['msg'] } }`. */
-export interface ApiErrorBody {
-  message?: string;
-  errors?: Record<string, string[]>;
-}
+import { ApiErrorBody } from '../api/api-envelope';
+
+/*
+ * Reads errors in the app's normalized shape `{ message, errors: { field: [...] } }`.
+ * The envelope interceptor (core/api) converts the backend's error format into this shape.
+ */
 
 function body(error: unknown): ApiErrorBody | null {
   if (error instanceof HttpErrorResponse && error.error && typeof error.error === 'object') {

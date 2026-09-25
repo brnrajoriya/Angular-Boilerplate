@@ -16,7 +16,8 @@ export interface MockDb {
   nextId: { user: number; dummy: number; file: number };
 }
 
-const DB_KEY = 'mock-db';
+// Bump the version when the stored shape changes, so old browsers get fresh seed data.
+const DB_KEY = 'mock-db-v2';
 
 export const DEMO_USER = { name: 'Demo User', email: 'demo@example.com', password: 'Demo@1234' };
 
@@ -28,6 +29,7 @@ function seed(): MockDb {
     category: DUMMY_CATEGORIES[i % DUMMY_CATEGORIES.length],
     description: `This is the description of dummy record number ${i + 1}.`,
     created_at: new Date(now - i * 36e5).toISOString(),
+    updated_at: new Date(now - i * 36e5).toISOString(),
   }));
   return {
     users: [{ id: 1, ...DEMO_USER }],

@@ -7,6 +7,9 @@ A production-ready **Angular 22** starter with the configuration every project n
 authentication, guards, interceptors, a CRUD template, file upload, environments, theming, tests,
 CI/CD and deployment.
 
+Pairs with the [Laravel API Boilerplate](https://github.com/brnrajoriya/Laravel-API-Boilerplate):
+clone both and you have a full-stack starter that works end to end.
+
 **Live demo:** https://brnrajoriya.github.io/Angular-Boilerplate/ (runs on the built-in mock API).
 Log in with `demo@example.com` / `Demo@1234`.
 
@@ -35,7 +38,8 @@ By [Bhaskar Rajoriya](https://www.linkedin.com/in/brnrajoriya/).
 - **File upload** - images / videos as `multipart/form-data` with live progress, previews, validation
 - **Server validation** - Laravel-style `422` errors are shown under the matching form fields
 - **Environments** - development, stage, production (+ demo) with file replacements
-- **Mock API** - an in-browser backend so the app works without a server (dev + demo)
+- **Laravel API ready** - works with the [Laravel API Boilerplate](https://github.com/brnrajoriya/Laravel-API-Boilerplate) out of the box; all backend specifics live in one commented adapter layer (`core/api/`) you can point at any other API
+- **Mock API** - an in-browser copy of the Laravel API, so the app works without a server (dev + demo)
 
 ### Modern Angular (v22)
 
@@ -91,12 +95,12 @@ Mock data is kept in `localStorage`; clear site data to reset it.
 
 ## Environments
 
-| Configuration | File                                         | Command                    | API          |
-| ------------- | -------------------------------------------- | -------------------------- | ------------ |
-| development   | `src/environments/environment.development.ts` | `ng serve`                | mock (`/api`) |
-| stage         | `src/environments/environment.stage.ts`      | `ng build -c stage`        | stage server |
-| production    | `src/environments/environment.ts`            | `ng build`                 | prod server  |
-| demo          | `src/environments/environment.demo.ts`       | `ng build -c production,demo` | mock      |
+| Configuration | File                                          | Command                       | API                        |
+| ------------- | --------------------------------------------- | ----------------------------- | -------------------------- |
+| development   | `src/environments/environment.development.ts` | `ng serve`                    | mock, or Laravel via proxy |
+| stage         | `src/environments/environment.stage.ts`       | `ng build -c stage`           | stage server               |
+| production    | `src/environments/environment.ts`             | `ng build`                    | prod server                |
+| demo          | `src/environments/environment.demo.ts`        | `ng build -c production,demo` | mock                       |
 
 Each file exports the same typed `Environment` (`environment.model.ts`):
 
@@ -104,19 +108,79 @@ Each file exports the same typed `Environment` (`environment.model.ts`):
 export const environment: Environment = {
   name: 'production',
   production: true,
-  apiUrl: 'https://api.example.com/api', // auth endpoints
-  adminApiUrl: 'https://api.example.com/api/admin', // CRUD + file endpoints
+  apiUrl: 'https://api.example.com/api/v1', // every endpoint is relative to this
   useMockApi: false,
 };
 ```
 
-### Using your real backend
-
-1. Set `apiUrl` / `adminApiUrl` in the environment files.
-2. Set `useMockApi: false` in `environment.development.ts`.
-3. During development `/api` is proxied to `http://localhost:8000` (`proxy.conf.json`), so there are no CORS issues.
-
 The mock backend is loaded with a dynamic `import()`, so production builds never download it.
+
+## Connecting to the Laravel API Boilerplate
+
+This app speaks the contract of the [Laravel API Boilerplate](https://github.com/brnrajoriya/Laravel-API-Boilerplate)
+out of the box (Sanctum tokens, the `{ status, data, errors, hasError, message }` envelope and
+[QueryFlow](https://github.com/brnrajoriya/laravel-queryflow) list parameters). The in-browser mock
+copies the same contract, so switching is only a flag:
+
+```bash
+# Terminal 1 - the API
+git clone https://github.com/brnrajoriya/Laravel-API-Boilerplate.git api && cd api
+composer setup && composer dev                # http://localhost:8000
+
+# Terminal 2 - this app
+# set useMockApi: false in src/environments/environment.development.ts
+npm start                                     # http://localhost:4200, /api is proxied to :8000
+```
+
+Log in with `demo@example.com` / `Demo@1234`. Because of the proxy (`proxy.conf.json`) the browser
+only talks to `localhost:4200`, so there is nothing to configure for CORS in development. In
+production, set `apiUrl` to the API's URL, and `FRONTEND_URL` / `CORS_ALLOWED_ORIGINS` on the Laravel
+side (`FRONTEND_URL` is also where password-reset emails link to: `/reset-password/{token}?email=...`).
+
+## The API adapter layer (`src/app/core/api/`)
+
+Everything that depends on the backend's format lives in four small, commented files. Components and
+feature services never see the wire format, so another backend only needs changes here:
+
+| File                          | What it decides                                                              | Change it when...                     |
+| ----------------------------- | ---------------------------------------------------------------------------- | ------------------------------------- |
+| `api.config.ts`               | base URL, auth / upload paths, list query parameter names, envelope on / off | your paths or parameter names differ  |
+| `api-envelope.ts`             | how `{ status, data, ... }` is unwrapped and errors are normalized            | your responses are wrapped differently |
+| `api-envelope.interceptor.ts` | applies the above to every API response and error                            | rarely                                |
+| `api-query.ts`                | `ListQuery` (`page`, `perPage`, `sortBy`, `sortOrder`, `keyword`, `filter`) → query string | your list endpoint uses another format |
+
+Override the contract without editing the defaults, in `app.config.ts`:
+
+```ts
+provideApiConfig({
+  auth: { ...LARAVEL_API_CONFIG.auth, register: '/auth/signup' },
+  listParams: { ...LARAVEL_API_CONFIG.listParams, sortBy: 'sort', sortOrder: 'dir' },
+}),
+```
+
+Backend without an envelope? Set `envelope: false`. Errors are expected as
+`{ message, errors: { field: [...] } }` either way; 422 field errors show under the matching inputs.
+
+### Endpoints used (Laravel API Boilerplate)
+
+All paths are relative to `apiUrl` (e.g. `/api/v1`). 🔒 = `Authorization: Bearer <token>` (added only for `apiUrl`).
+
+| Method | Path                    |    | Body / query                                            | `data`                        |
+| ------ | ----------------------- | -- | ------------------------------------------------------- | ----------------------------- |
+| POST   | `/auth/login`           |    | `{ email, password }`                                   | `{ token, expires_in, user }` |
+| POST   | `/auth/register`        |    | `{ name, email, password }`                             | `{ token, expires_in, user }` |
+| POST   | `/auth/forgot-password` |    | `{ email }`                                             | `{}`                          |
+| POST   | `/auth/reset-password`  |    | `{ token, email, password, password_confirmation }`     | `{}`                          |
+| POST   | `/auth/logout`          | 🔒 |                                                         | `{}` (revokes the token)      |
+| GET    | `/dummies`              | 🔒 | `?page&per_page&order_by&order_type&keyword&filter[..]` | paginator                     |
+| GET    | `/dummies/{id}`         | 🔒 |                                                         | `Dummy`                       |
+| POST   | `/dummies`              | 🔒 | `{ title, category, description }`                      | `Dummy`                       |
+| PATCH  | `/dummies/{id}`         | 🔒 | partial                                                 | `Dummy`                       |
+| DELETE | `/dummies/{id}`         | 🔒 |                                                         | `{}`                          |
+| DELETE | `/dummies`              | 🔒 | `{ ids: [...] }`                                        | `{ deleted }`                 |
+| POST   | `/uploads`              | 🔒 | `multipart/form-data` with `file`                       | `UploadedFile`                |
+
+The paginator is `{ data, current_page, last_page, per_page, total, from, to }`.
 
 ## Project structure
 
@@ -124,9 +188,10 @@ The mock backend is loaded with a dynamic `import()`, so production builds never
 src/
 ├── app/
 │   ├── core/                     # app-wide singletons (never imported by features' UI)
+│   │   ├── api/                  # API adapter: contract config, envelope, list query mapping
 │   │   ├── auth/                 # AuthService, guards, auth interceptor, models, safe redirects
 │   │   ├── http/                 # error + loading interceptors, HttpContext tokens, error helpers
-│   │   ├── mock/                 # in-browser mock backend (dev / demo only)
+│   │   ├── mock/                 # in-browser copy of the Laravel API (dev / demo only)
 │   │   └── services/             # notifications, theme, page title, storage
 │   ├── shared/                   # reusable building blocks
 │   │   ├── data/crud.service.ts  # generic REST resource client
@@ -149,27 +214,6 @@ src/
 └── styles.scss                   # Material theme + global helpers
 ```
 
-## API contract
-
-The mock backend implements exactly this contract, so a real backend that follows it works as-is.
-Errors use `{ "message": "...", "errors": { "field": ["..."] } }` (Laravel style).
-
-| Method | URL                               | Body                                   | Response                       |
-| ------ | --------------------------------- | -------------------------------------- | ------------------------------ |
-| POST   | `{apiUrl}/auth/login`             | `{ email, password }`                  | `{ token, expires_in, user }`  |
-| POST   | `{apiUrl}/auth/signup`            | `{ name, email, password }`            | `{ token, expires_in, user }`  |
-| POST   | `{apiUrl}/auth/recovery`          | `{ email }`                            | `{ message }`                  |
-| POST   | `{apiUrl}/auth/reset`             | `{ token, password, password_confirmation }` | `{ message }`            |
-| GET    | `{adminApiUrl}/dummies`           | `?page&per_page&sort_by&order_by&keyword` | `Paginated<Dummy>`          |
-| GET    | `{adminApiUrl}/dummies/{id}`      |                                        | `{ data: Dummy }`              |
-| POST   | `{adminApiUrl}/dummies`           | `{ title, category, description }`     | `{ data: Dummy }`              |
-| PATCH  | `{adminApiUrl}/dummies/{id}`      | partial                                | `{ data: Dummy }`              |
-| DELETE | `{adminApiUrl}/dummies/{id}`      |                                        | `204`                          |
-| POST   | `{adminApiUrl}/files`             | `multipart/form-data` with `file`      | `{ data: UploadedFile }`       |
-
-`Paginated<T>` = `{ data, current_page, last_page, per_page, total, from, to }`.
-Admin endpoints require `Authorization: Bearer <token>`; the interceptor adds it only to these two base URLs.
-
 ## Adding a new CRUD module
 
 Example: a `products` resource.
@@ -190,11 +234,13 @@ export type ProductPayload = Omit<Product, 'id'>;
 ```ts
 @Injectable({ providedIn: 'root' })
 export class ProductService extends CrudService<Product, ProductPayload> {
-  protected readonly endpoint = `${environment.adminApiUrl}/products`;
+  protected readonly resource = 'products'; // → {apiUrl}/products
 }
 ```
 
-You now have `list(query)`, `get(id)`, `create(payload)`, `update(id, payload)` and `delete(id)`.
+You now have `list(query)`, `get(id)`, `create(payload)`, `update(id, payload)`, `delete(id)`,
+`deleteMany(ids)` and `restore(id)`. On the Laravel side, `php artisan make:model Product -a` +
+`Route::apiCrud('products', ProductController::class)` creates the matching API.
 
 **3. Components** - copy `features/dummies/*` and rename, or generate them:
 
@@ -227,7 +273,7 @@ Route params (`:id`) and query params (`?page=2`) arrive directly as component `
 ## Security
 
 - **Strict CSP**: production builds inject a hash-based `Content-Security-Policy` (`security.autoCsp`). Avoid inline scripts / `eval`.
-- **Token scoping**: the `Authorization` header is only sent to `apiUrl` / `adminApiUrl`, never to third-party URLs.
+- **Token scoping**: the `Authorization` header is only sent to `apiUrl`, never to third-party URLs; logout also revokes the token on the server.
 - **Open-redirect protection**: `?returnUrl=` must be a same-app path (`safeRedirectUrl`).
 - **No account enumeration**: the password-recovery flow answers the same for unknown emails.
 - **XSRF**: Angular's `HttpClient` XSRF protection is on (cookie `XSRF-TOKEN` → header `X-XSRF-TOKEN`) for same-origin mutating requests.

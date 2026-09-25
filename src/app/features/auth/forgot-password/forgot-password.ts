@@ -66,8 +66,9 @@ export default class ForgotPassword {
   private async send(): Promise<TreeValidationResult> {
     this.error.set(null);
     try {
-      const res = await firstValueFrom(this.auth.sendPasswordResetEmail(this.model().email));
-      this.sentMessage.set(res.message);
+      await firstValueFrom(this.auth.sendPasswordResetEmail(this.model().email));
+      // Same text whether or not the email exists (the API does not reveal registered accounts).
+      this.sentMessage.set('If that email is registered, a reset link is on its way.');
       return undefined;
     } catch (e) {
       // Field errors (422) show under their inputs; anything else goes to the form-level alert.

@@ -11,7 +11,11 @@ import { errorInterceptor } from './error.interceptor';
 import { noErrorToast } from './http-context';
 
 describe('errorInterceptor', () => {
-  const auth = { isAuthenticated: signal(true), logout: vi.fn() };
+  const auth = {
+    isAuthenticated: signal(true),
+    logout: vi.fn(),
+    isPublicAuthUrl: (url: string) => url.endsWith('/auth/login'),
+  };
   const notify = { error: vi.fn(), success: vi.fn() };
   let http: HttpClient;
   let controller: HttpTestingController;
@@ -37,7 +41,7 @@ describe('errorInterceptor', () => {
     controller.expectOne(url).flush(body, { status, statusText: 'Error' });
 
   it('logs out on 401 from a protected endpoint and re-throws', () => {
-    const url = `${environment.adminApiUrl}/dummies`;
+    const url = `${environment.apiUrl}/dummies`;
     const errors: unknown[] = [];
     http.get(url).subscribe({ error: (e) => errors.push(e) });
     fail(url, 401);
@@ -56,7 +60,7 @@ describe('errorInterceptor', () => {
   });
 
   it('shows a toast with the server message on 500', () => {
-    const url = `${environment.adminApiUrl}/dummies`;
+    const url = `${environment.apiUrl}/dummies`;
     http.get(url).subscribe({ error: () => undefined });
     fail(url, 500, { message: 'Boom' });
 
@@ -64,7 +68,7 @@ describe('errorInterceptor', () => {
   });
 
   it('leaves 422 validation errors to the form', () => {
-    const url = `${environment.adminApiUrl}/dummies`;
+    const url = `${environment.apiUrl}/dummies`;
     http.post(url, {}).subscribe({ error: () => undefined });
     fail(url, 422, { errors: { title: ['required'] } });
 
@@ -72,7 +76,7 @@ describe('errorInterceptor', () => {
   });
 
   it('respects SKIP_ERROR_TOAST', () => {
-    const url = `${environment.adminApiUrl}/dummies`;
+    const url = `${environment.apiUrl}/dummies`;
     http.get(url, { context: noErrorToast() }).subscribe({ error: () => undefined });
     fail(url, 500);
 

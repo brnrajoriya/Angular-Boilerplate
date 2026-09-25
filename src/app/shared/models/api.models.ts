@@ -1,4 +1,7 @@
-/** Laravel-style paginator payload returned by list endpoints. */
+/**
+ * Paginator returned by list endpoints (Laravel's `paginate()` shape, used by QueryFlow).
+ * Extra keys the backend may add (`links`, `path`, `first_page_url`, ...) are ignored.
+ */
 export interface Paginated<T> {
   data: T[];
   current_page: number;
@@ -9,17 +12,4 @@ export interface Paginated<T> {
   to: number | null;
 }
 
-/** Wrapper for single-resource responses: `{ data: {...} }`. */
-export interface DataResponse<T> {
-  data: T;
-}
-
-export type SortOrder = 'asc' | 'desc';
-
-export interface ListQuery {
-  page?: number;
-  per_page?: number;
-  sort_by?: string;
-  order_by?: SortOrder;
-  keyword?: string;
-}
+export type { FilterValue, ListQuery, SortOrder } from '../../core/api/api-query';

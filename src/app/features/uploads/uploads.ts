@@ -83,7 +83,7 @@ export default class Uploads {
         if (event.type === HttpEventType.UploadProgress && event.total) {
           this.progress.set(Math.round((100 * event.loaded) / event.total));
         } else if (event.type === HttpEventType.Response && event.body) {
-          this.uploaded.update((list) => [event.body!.data, ...list]);
+          this.uploaded.update((list) => [event.body!, ...list]);
           this.notify.success(`${selected.file.name} uploaded.`);
           this.progress.set(null);
           this.clearPreview();
